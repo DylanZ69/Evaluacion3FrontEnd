@@ -2,9 +2,10 @@
 import React,{useEffect,useState} from "react"
 import { Persona } from "./InterfacePersonas"
 import MostrarPersonas from "./mostrarPersonas"
+import { validarNombre,validarApellido,validarEdad,validarDescripcion,validarFecha } from "./validaciones"
 
 
-const categorias = ["Evento","Beneficiario","Proyecto"];
+const categorias = ["Alumno","Apoderado","Docente"];
 const miStorage = window.localStorage
 
 const initialState: Persona ={
@@ -22,6 +23,11 @@ export default function Home() {
   const[personas, setPersonas]= useState<Persona[]>([]);
   const[editarIndex, setEditarIndex]= useState<number | null>(null);
   const[errorNombre, setErrorNombre]= useState("");
+  const[errorApellido, setErrorApellido]=useState("");
+  const[errorEdad, setErrorEdad]= useState("");
+  const[errorDescripcion, setErrorDescripcion]= useState("");
+  const[errorFecha, setErrorFecha]= useState("");
+
 
   useEffect(()=>{
     const datos = miStorage.getItem("personas");
@@ -35,25 +41,57 @@ export default function Home() {
   };
   const handleCambiar = (name: string, value: any)=>{
     setPersona({...persona,[name]:value});
-    if (name === "nombre"){
-      if (value.length<3) setErrorNombre("Minimo 3 letras")
-      else setErrorNombre("");
+    switch (name){
+      case "nombre":
+        setErrorNombre(validarNombre(value));
+        break;
+      case "apellido":
+        setErrorApellido(validarApellido(value));
+        break;
+        case "edad":
+        setErrorEdad(validarEdad(value));
+        break;
+      case "descripcion":
+        setErrorDescripcion(validarDescripcion(value));
+        break;
+      case "fecha":
+        setErrorFecha(validarFecha(value));
+        break;
+      default:
+        break;
     }
   };
 
   const handleGuardar = ()=>{
-    if (persona.nombre.length<3){
-      setErrorNombre("nombre muy corto");
-      return;
-    }
-    if (editarIndex === null){
-      guardarStorage([...personas, persona]);
-    }else{
+    const errores={
+      nombre: validarNombre(persona.nombre),
+      apellido: validarApellido(persona.apellido),
+      edad: validarEdad(persona.edad),
+      descripcion: validarDescripcion(persona.descripcion),
+      fecha: validarFecha(persona.fecha),
+    };
+
+    setErrorNombre(errores.nombre);
+    setErrorApellido(errores.apellido);
+    setErrorEdad(errores.edad);
+    setErrorDescripcion(errores.descripcion);
+    setErrorFecha(errores.fecha);
+
+    const hayErrores=Object.values(errores).some((error)=> error !== "");
+    if (hayErrores) return;
+    
+    if (editarIndex !== null){
       const copia = [...personas];
       copia[editarIndex]=persona;
       guardarStorage(copia);
+      alert("PERSONA ACTUALIZADA CON EXITO")
       setEditarIndex(null);
+    }else{
+      guardarStorage([...personas, persona]);
+      alert("PERSONA REGISTRADA CON EXITO")
     }
+
+   
     setPersona(initialState);
   };
 
@@ -92,7 +130,8 @@ export default function Home() {
           placeholder="ingrese su apellido"
           value={persona.apellido}
           onChange={(e) => handleCambiar(e.target.name, e.target.value)}
-        /><br /><br />
+        /><br />
+        <span style={{ color: "red" }}>{errorApellido}</span><br /><br /><br />
 
         <label>Edad</label><br />
         <input
@@ -100,7 +139,8 @@ export default function Home() {
           type="number"
           value={persona.edad}
           onChange={(e) => handleCambiar(e.target.name, Number(e.target.value))}
-        /><br /><br />
+        /><br />
+        <span style={{ color: "red" }}>{errorEdad}</span><br /><br /><br />
 
         <label>Categoría</label><br />
         <select
@@ -119,7 +159,8 @@ export default function Home() {
           placeholder="ingrese una breve descripcion"
           value={persona.descripcion}
           onChange={(e) => handleCambiar(e.target.name, e.target.value)}
-        /><br /><br />
+        /><br />
+        <span style={{ color: "red" }}>{errorDescripcion}</span><br /><br /><br />
 
         <label>Fecha</label><br />
         <input
@@ -127,7 +168,8 @@ export default function Home() {
           type="date"
           value={persona.fecha}
           onChange={(e) => handleCambiar(e.target.name, e.target.value)}
-        /><br /><br />
+        /><br />
+        <span style={{ color: "red" }}>{errorFecha}</span><br /><br /><br />
 
         <button type="button" onClick={handleGuardar}>
           {editarIndex === null ? "Registrar" : "Actualizar"}</button>
