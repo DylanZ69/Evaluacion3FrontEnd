@@ -60,7 +60,15 @@ export default function Home() {
   const traerPersona= (p: Persona, index: number)=> {
     setPersona(p);
     setEditarIndex(index);
-  }
+  };
+
+  const eliminarPersona = (index: number) => {
+  const nuevaLista = personas.filter((_, i) => i !== index);
+  guardarStorage(nuevaLista);
+  setPersona(initialState);
+  setEditarIndex(null);
+};
+
 
   return (
     <div>
@@ -125,7 +133,10 @@ export default function Home() {
           {editarIndex === null ? "Registrar" : "Actualizar"}</button>
       </form>
 
-      <MostrarPersonas personas={personas} traerPersona={traerPersona}
+      <MostrarPersonas 
+       personas={personas} 
+       traerPersona={traerPersona} 
+       eliminarPersona={eliminarPersona}
       />
     </div>
   );

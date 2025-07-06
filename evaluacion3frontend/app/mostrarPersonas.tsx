@@ -5,12 +5,13 @@ import { Persona } from "./InterfacePersonas"
 interface Props {
     personas: Persona[];
     traerPersona: (p: Persona, index: number)=> void;
+    eliminarPersona: (index: number)=> void;
 }
 
-const MostrarPersonas = ({personas, traerPersona }:Props) =>{
+const MostrarPersonas = ({personas, traerPersona, eliminarPersona }:Props) =>{
     return (
     <div>
-      <h2>Personas Registradas</h2>
+      <h2>PERSONAS REGISTRADAS</h2>
       <table>
         <thead>
           <tr>
@@ -34,6 +35,7 @@ const MostrarPersonas = ({personas, traerPersona }:Props) =>{
               <td>{p.fecha}</td>
               <td>
                 <button onClick={() => traerPersona(p, index)}>Editar</button>
+                <button onClick={() => eliminarPersona(index)}>Eliminar</button>
               </td>
             </tr>
           ))}
