@@ -5,7 +5,7 @@ import MostrarPersonas from "./mostrarPersonas"
 import { validarNombre,validarApellido,validarEdad,validarDescripcion,validarFecha } from "./validaciones"
 
 
-const categorias = ["Alumno","Apoderado","Docente"];
+const categorias = ["Eventos","Beneficiarios","Proyectos"];
 const miStorage = window.localStorage
 
 const initialState: Persona ={
