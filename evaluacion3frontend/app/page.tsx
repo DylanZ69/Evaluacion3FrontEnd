@@ -3,10 +3,18 @@ import React,{useEffect,useState} from "react"
 import { Persona } from "./Interfaz/InterfacePersonas"
 import MostrarPersonas from "./Componentes/mostrarPersonas"
 import { validarNombre,validarApellido,validarEdad,validarDescripcion,validarFecha } from "./Componentes/validaciones"
+import { db } from "./Firebase/firebase"
+import {
+  collection,
+  getDocs,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+}from "firebase/firestore"
 
 
 const categorias = ["Eventos","Beneficiarios","Proyectos"];
-const miStorage = window.localStorage
 
 const initialState: Persona ={
   nombre : "",
@@ -20,7 +28,7 @@ const initialState: Persona ={
 
 export default function Home() {
   const[persona, setPersona]= useState<Persona>(initialState);
-  const[personas, setPersonas]= useState<Persona[]>([]);
+  const[personas, setPersonas]= useState<(Persona & {id: string})[]>([]);
   const[editarIndex, setEditarIndex]= useState<number | null>(null);
   const[errorNombre, setErrorNombre]= useState("");
   const[errorApellido, setErrorApellido]=useState("");
@@ -28,17 +36,23 @@ export default function Home() {
   const[errorDescripcion, setErrorDescripcion]= useState("");
   const[errorFecha, setErrorFecha]= useState("");
 
+  const RefPersonas = collection(db, "personas");
+
+  const cargarPersonas = async () => {
+  const snapshot = await getDocs(RefPersonas);
+  const lista = snapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  })) as (Persona & { id: string })[];
+  setPersonas(lista);
+};
+
 
   useEffect(()=>{
-    const datos = miStorage.getItem("personas");
-    if (datos){
-      setPersonas(JSON.parse(datos));
-    }
+    cargarPersonas();
   },[]);
-  const guardarStorage = (lista: Persona[])=>{
-    miStorage.setItem("personas", JSON.stringify(lista));
-    setPersonas(lista);
-  };
+
+
   const handleCambiar = (name: string, value: any)=>{
     setPersona({...persona,[name]:value});
     switch (name){
@@ -62,7 +76,7 @@ export default function Home() {
     }
   };
 
-  const handleGuardar = ()=>{
+  const handleGuardar = async ()=>{
     const errores={
       nombre: validarNombre(persona.nombre),
       apellido: validarApellido(persona.apellido),
@@ -80,29 +94,44 @@ export default function Home() {
     const hayErrores=Object.values(errores).some((error)=> error !== "");
     if (hayErrores) return;
     
-    if (editarIndex !== null){
-      const copia = [...personas];
-      copia[editarIndex]=persona;
-      guardarStorage(copia);
-      alert("PERSONA ACTUALIZADA CON EXITO")
+    if (editarIndex !== null) {
+      const personaId = personas[editarIndex].id;
+      const docRef = doc(db, 'personas', personaId);
+
+      const personaActualizada = {
+        nombre: persona.nombre,
+        apellido: persona.apellido,
+        edad: persona.edad,
+        categoria: persona.categoria,
+        descripcion: persona.descripcion,
+        fecha: persona.fecha,
+      };
+
+      await updateDoc(docRef, personaActualizada);
+      alert('Persona actualizada con éxito');
       setEditarIndex(null);
-    }else{
-      guardarStorage([...personas, persona]);
-      alert("PERSONA REGISTRADA CON EXITO")
+    } else {
+      await addDoc(RefPersonas, persona);
+      alert('Persona registrada con éxito');
     }
 
-   
     setPersona(initialState);
+    cargarPersonas();
   };
 
-  const traerPersona= (p: Persona, index: number)=> {
+  const traerPersona= (p: Persona & {id: string}, index: number)=> {
     setPersona(p);
     setEditarIndex(index);
   };
 
-  const eliminarPersona = (index: number) => {
-  const nuevaLista = personas.filter((_, i) => i !== index);
-  guardarStorage(nuevaLista);
+  const eliminarPersona = async (index: number) => {
+  const personaId = personas[index].id;
+  const confirmar = confirm("¿Estás seguro que deseas eliminar esta persona?");
+  if (!confirmar) return;
+
+  await deleteDoc(doc(db, "personas", personaId));
+  alert("Persona eliminada");
+  cargarPersonas();
   setPersona(initialState);
   setEditarIndex(null);
 };
