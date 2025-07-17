@@ -2,7 +2,7 @@
 import React,{useEffect,useState} from "react"
 import { Persona } from "./Interfaz/InterfacePersonas"
 import MostrarPersonas from "./Componentes/mostrarPersonas"
-import { validarNombre,validarApellido,validarEdad,validarDescripcion,validarFecha } from "./validaciones"
+import { validarNombre,validarApellido,validarEdad,validarDescripcion,validarFecha } from "./Componentes/validaciones"
 
 
 const categorias = ["Eventos","Beneficiarios","Proyectos"];

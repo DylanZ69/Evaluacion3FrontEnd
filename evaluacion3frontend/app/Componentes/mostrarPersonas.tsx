@@ -3,8 +3,8 @@ import React from "react"
 import { Persona } from "../Interfaz/InterfacePersonas"
 
 interface Props {
-    personas: Persona[];
-    traerPersona: (p: Persona, index: number)=> void;
+    personas: (Persona & {id: string})[];
+    traerPersona: (p: Persona & {id: string})=> void;
     eliminarPersona: (index: number)=> void;
 }
 
@@ -26,7 +26,7 @@ const MostrarPersonas = ({personas, traerPersona, eliminarPersona }:Props) =>{
         </thead>
         <tbody>
           {personas.map((p, index) => (
-            <tr key={index}>
+            <tr key={p.id}>
               <td>{p.nombre}</td>
               <td>{p.apellido}</td>
               <td>{p.edad}</td>
@@ -34,7 +34,7 @@ const MostrarPersonas = ({personas, traerPersona, eliminarPersona }:Props) =>{
               <td>{p.descripcion}</td>
               <td>{p.fecha}</td>
               <td>
-                <button onClick={() => traerPersona(p, index)}>Editar</button>
+                <button onClick={() => traerPersona(p)}>Editar</button>
                 <button onClick={() => eliminarPersona(index)}>Eliminar</button>
               </td>
             </tr>
