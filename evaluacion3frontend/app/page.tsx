@@ -1,7 +1,7 @@
 'use client'
 import React,{useEffect,useState} from "react"
-import { Persona } from "./InterfacePersonas"
-import MostrarPersonas from "./mostrarPersonas"
+import { Persona } from "./Interfaz/InterfacePersonas"
+import MostrarPersonas from "./Componentes/mostrarPersonas"
 import { validarNombre,validarApellido,validarEdad,validarDescripcion,validarFecha } from "./validaciones"
 
 

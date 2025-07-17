@@ -1,6 +1,6 @@
 'use client'
 import React from "react"
-import { Persona } from "./InterfacePersonas"
+import { Persona } from "../Interfaz/InterfacePersonas"
 
 interface Props {
     personas: Persona[];
